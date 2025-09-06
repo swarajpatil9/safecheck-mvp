@@ -58,35 +58,49 @@ async def check_eml(file: UploadFile = File(...)):
             }
         }
         
-        # Calculate enhanced risk score
+        # Calculate enhanced risk score (reduced penalties for better accuracy)
         risk_factors = 0
         
-        # Link-based risks
+        # Link-based risks (reduced)
         if features['suspicious_links'] > 0:
-            risk_factors += min(features['suspicious_links'] * 0.2, 0.4)
+            risk_factors += min(features['suspicious_links'] * 0.1, 0.2)
         if features['hidden_links'] > 0:
-            risk_factors += min(features['hidden_links'] * 0.15, 0.3)
+            risk_factors += min(features['hidden_links'] * 0.08, 0.15)
         
-        # Header-based risks
+        # Header-based risks (reduced)
         if features['spf_record'] == 'fail':
-            risk_factors += 0.3
+            risk_factors += 0.15
         if features['suspicious_sender']:
-            risk_factors += 0.2
+            risk_factors += 0.1
         if features['return_path_mismatch']:
-            risk_factors += 0.25
+            risk_factors += 0.12
         
-        # Content-based risks
+        # Content-based risks (reduced)
         if features['subject_urgency']:
-            risk_factors += 0.2
+            risk_factors += 0.1
         if features['has_javascript_redirects']:
-            risk_factors += 0.3
+            risk_factors += 0.15
         if features['suspicious_css']:
-            risk_factors += 0.2
+            risk_factors += 0.1
         if features['suspicious_keywords'] > 3:
-            risk_factors += 0.2
+            risk_factors += 0.1
         
-        # Combine basic ML prediction with advanced analysis
-        enhanced_prob = min(basic_result['phish_prob'] + risk_factors, 1.0)
+        # Smart combination: only apply risk factors when ML model is uncertain
+        base_prob = basic_result['phish_prob']
+        
+        if 0.2 <= base_prob <= 0.8:
+            # ML is uncertain, use EML analysis to help decide
+            enhanced_prob = min(base_prob + (risk_factors * 0.5), 1.0)
+        elif base_prob < 0.1 and risk_factors > 0.6:
+            # Very confident legit but high risk factors, slight adjustment
+            enhanced_prob = min(base_prob + (risk_factors * 0.2), 0.4)
+        elif base_prob > 0.9 and risk_factors < 0.3:
+            # Very confident phish but low risk factors, slight adjustment  
+            enhanced_prob = max(base_prob - 0.1, 0.6)
+        else:
+            # ML is confident, trust it
+            enhanced_prob = base_prob
+            
         enhanced_label = 1 if enhanced_prob > 0.5 else 0
         
         return {
