@@ -27,8 +27,8 @@ def analyze_enhanced_dataset(file_path):
     fig = plt.figure(figsize=(20, 16))
     
     # 1. Label distribution
-    plt.subplot(3, 4, 1)
-    df['label'].value_counts().plot(kind='bar', color=['green', 'red'])
+    ax = plt.subplot(3, 4, 1)
+    df['label'].value_counts().plot(kind='bar', color=['green', 'red'], ax=ax)
     plt.title('Email Label Distribution')
     plt.xlabel('Label')
     plt.ylabel('Count')
@@ -49,18 +49,18 @@ def analyze_enhanced_dataset(file_path):
     plt.ylabel('Frequency')
     
     # 4. Urgency score
-    plt.subplot(3, 4, 4)
+    ax = plt.subplot(3, 4, 4)
     urgency_cross = pd.crosstab(df['urgency_score'], df['label'])
-    urgency_cross.plot(kind='bar', stacked=True, color=['green', 'red'])
+    urgency_cross.plot(kind='bar', stacked=True, color=['green', 'red'], ax=ax)
     plt.title('Urgency Score Distribution')
     plt.xlabel('Urgency Score')
     plt.ylabel('Count')
     plt.legend(['Legit', 'Phishing'])
     
     # 5. Sender domain suspicious
-    plt.subplot(3, 4, 5)
+    ax = plt.subplot(3, 4, 5)
     domain_cross = pd.crosstab(df['sender_domain_suspicious'], df['label'])
-    domain_cross.plot(kind='bar', color=['green', 'red'])
+    domain_cross.plot(kind='bar', color=['green', 'red'], ax=ax)
     plt.title('Sender Domain Suspicious')
     plt.xlabel('Domain Suspicious')
     plt.ylabel('Count')
@@ -68,9 +68,9 @@ def analyze_enhanced_dataset(file_path):
     plt.legend(['Legit', 'Phishing'])
     
     # 6. Authentication status
-    plt.subplot(3, 4, 6)
+    ax = plt.subplot(3, 4, 6)
     auth_data = df.groupby(['label', 'dkim_valid']).size().unstack(fill_value=0)
-    auth_data.plot(kind='bar', color=['red', 'green'])
+    auth_data.plot(kind='bar', color=['red', 'green'], ax=ax)
     plt.title('DKIM Validation by Label')
     plt.xlabel('Label')
     plt.ylabel('Count')
@@ -90,9 +90,9 @@ def analyze_enhanced_dataset(file_path):
     plt.legend()
     
     # 8. Priority distribution
-    plt.subplot(3, 4, 8)
+    ax = plt.subplot(3, 4, 8)
     priority_cross = pd.crosstab(df['priority'], df['label'])
-    priority_cross.plot(kind='bar', color=['green', 'red'])
+    priority_cross.plot(kind='bar', color=['green', 'red'], ax=ax)
     plt.title('Email Priority Distribution')
     plt.xlabel('Priority')
     plt.ylabel('Count')
@@ -114,9 +114,9 @@ def analyze_enhanced_dataset(file_path):
     plt.ylabel('Uppercase Ratio')
     
     # 11. SPF record status
-    plt.subplot(3, 4, 11)
+    ax = plt.subplot(3, 4, 11)
     spf_cross = pd.crosstab(df['spfrecord'], df['label'])
-    spf_cross.plot(kind='bar', color=['green', 'red'])
+    spf_cross.plot(kind='bar', color=['green', 'red'], ax=ax)
     plt.title('SPF Record Status')
     plt.xlabel('SPF Status')
     plt.ylabel('Count')
